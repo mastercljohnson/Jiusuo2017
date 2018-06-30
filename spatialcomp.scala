@@ -6,18 +6,30 @@ import com.xajiusuo.job.config.ParameterConfig
 import scala.collection.mutable.ArrayBuffer
 
 /**
-  * Created by NS on 2017/12/27.
+  * Created by Christopher Johnson on 2017/12/27.
+  */
+
+/**
+  * Extract the phone information grouped by location
+  * Under which signal towers
   */
 class spatialcomp extends AbstractJob {
+
+  // Datasets which positions are being read from
   override def run(parameter: ParameterConfig): Unit = {
     val inputPath1 = parameter.getParameter("input1.path")
     val inputPath2 = parameter.getParameter("input2.path")
     val outputPath1 = parameter.getParameter("output1.path")
     val outputPath2 = parameter.getParameter("output2.path")
 
+
+    // Set variables of the datasets for manipulation
     val original1 = this.sparkContext.textFile(inputPath1)
     val original2 = this.sparkContext.textFile(inputPath2)
 
+    // Order phone numbers by location (in this case coordinates of signal towers)
+
+    // Reformat to extract only the location and phone numbers
     val parseforposition = original1.filter(x => {
       val cls = x.split("\t")
       cls.length>8 && cls(2).length>0 && cls(6).length>0 && cls(8).length>0
@@ -26,28 +38,10 @@ class spatialcomp extends AbstractJob {
         val cls = y.split("\t")
         (cls(5)+ "," + cls(7), cls(1))
       })
+
+    // Group phone numbers by location
     val groupbylocation = parseforposition.groupByKey().map( x => x._2)
 
-/*    val groupbycall1 = original2.filter(x => {
-      val cls = x.split("\t")
-      cls.length>16 && cls(2).length>0 && cls(10).length>0
-      //&& cls(15).length>0
-    })
-      .map(y => {
-        val cls = y.split("\t")
-        (cls(4), cls(2))
-      })
-
-    val groupbycall2 = original2.filter(x => {
-      val cls = x.split("\t")
-      cls.length>16 && cls(2).length>0 && cls(10).length>0
-      //&& cls(15).length>0
-    })
-      .map(y => {
-        val cls = y.split("\t")
-        (cls(2), cls(4))
-      })
-*/
     val dataRDD2=original2.filter(x => {
       val cls = x.split("\t")
       cls.length>16 && cls(1).length>0 && cls(10).length>0
@@ -61,23 +55,8 @@ class spatialcomp extends AbstractJob {
       }
     }).distinct()
 
-    //leftOuterJoin
+    //leftOuterJoin to reformat
 
-/*    val groupbycall3 = groupbycall1.intersection(groupbycall2)
-    val groupbycall4 = groupbycall3.union(groupbycall1.subtract(groupbycall3)).map( x => x._1 +"\t"+ x._2).cache()
-*/
-
-//    val extractpeople = groupbylocation.cartesian(groupbylocation).map( x=> (x._1 +"\t"+ x._2))
-//    val extractpeople = groupbylocation.flatMap(f => {
-//      var arr = new ArrayBuffer[(String,String)]()
-//`     val tarray = f.toArray
-//      for(i<-0 to tarray.size-1){
-//        for(j<-i+1 to tarray.size-1){
-//          arr+=((tarray(i),tarray(j)))
-//        }
-//      }
-//    arr
-//    })
     val extractpeople = groupbylocation
       .flatMap(  f   =>{
         var arr = new ArrayBuffer[(String,String)]()
@@ -95,26 +74,9 @@ class spatialcomp extends AbstractJob {
       })
       arr
     })
-//  .flatMap(f => {
-//      var arr = new ArrayBuffer[(String,String)]()
-//      val tarray = f.toArray
-//      for(i<-0 to tarray.size-1){
-//        for(j<-0 to tarray.size-1){
-//          arr +=((tarray(i),tarray(j)))
-//        }
-//      }
-//      arr
-//    }).map( x=> (x._1 +"\t"+ x._2))
 
+    // Find numbers within a certain vicinity
 
-
-
-/*    val extractpeople2 = groupbylocation.cartesian(groupbylocation).map( x=> (x._2, x._1))
-    val extractppl3 = extractpeople.intersection(extractpeople2)
-    val extractppl4 = extractppl3.union(extractpeople.subtract(extractppl3))
-
-    val count = extractppl4.map( x => (x._1+","+x._2, 1)).reduceByKey(_+_)
-*/
     val count = extractpeople.map(f=>{
       val cls=f.split("\t")
       if (cls(0)<cls(1)){
@@ -130,17 +92,7 @@ class spatialcomp extends AbstractJob {
       cls(2).toInt > 10
     } )
 
-
- //   val extractcount = count.filter( x => {
- //     x._2 > 3}).map(x=> x._1)
-
-   /* val callfilter = groupbycall4.map(x => {
-      val cls = x.split("\t")
-      (cls(1),cls(2))
-    })*/
-
-
-
+    // Save the regrouped phone numbers in a file
     expectclose.repartition(1).saveAsTextFile(outputPath1)
     dataRDD2.repartition(1).saveAsTextFile(outputPath2)
 

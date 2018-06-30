@@ -4,8 +4,13 @@ import com.xajiusuo.job.config.{JobConfig, ParameterConfig, RuntimeConfig}
 import com.xajiusuo.spark.SparkJobSubmits
 
 /**
-  * Created by NS on 2017/12/28.
+  * Created by Christopher Johnson on 2017/12/28.
   */
+
+/*
+* This file is used to configure the spark job of running the filter
+* to create a reliable dataset for the linear regression model
+*/
 object Runspamfilter {
   def main(args: Array[String]): Unit = {
     val jobConfig = new JobConfig

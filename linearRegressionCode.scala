@@ -11,9 +11,13 @@ import org.apache.spark.mllib.regression
 //import org.apache.spark.ml.stat.Correlation
 //import org.apache.spark.sql.Row
 /**
-  * Created by NS on 2017/12/26.
+  * Created by Christopher Johnson on 2017/12/26.
   */
-class linear extends AbstractJob{
+
+/**
+  * Simple code that performs an iteration of linear regression
+  */
+class linearRegressionCode extends AbstractJob{
   override def run(parameter: ParameterConfig): Unit = {
     val inputPath = parameter.getParameter("input.path")
     val outputPath = parameter.getParameter("output.path")
@@ -35,21 +39,21 @@ class linear extends AbstractJob{
       (cls(5)+","+cls(7),1)
     }).reduceByKey(_+_).map(f=>f._1+"\t"+f._2)
     dataRDD.repartition(1).saveAsTextFile(outputPath)
-    // hdfs://masterAB/tmp/fd-test/Test/LacciCount
-    //val n=0
-    //val alpha1 =0
-    /*val test2 = test1.reduceByKey((x,y) => {
+     hdfs://masterAB/tmp/fd-test/Test/LacciCount
+      val n=0
+      val alpha1 =0
+      val test2 = test1.reduceByKey((x,y) => {
       var step = x(n+1)-x(n)
       val alpha1 = alpha1 + 0.01*((y(n+1)-y(n)/(step)))*step
       val n = n + 1
     })
-    */
 
-   /*val df = test1.map(Tuple1.apply).toDF("features")
+
+    val df = test1.map(Tuple1.apply).toDF("features")
     val Row(coeff1: Matrix) =
       Correlation.corr(df, "features").head
     println("Pearson correlation matrix: \n" + coeff.toString)
-    */
+
 
 
 

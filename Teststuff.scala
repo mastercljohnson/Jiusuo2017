@@ -4,7 +4,7 @@ import com.xajiusuo.job.AbstractJob
 import com.xajiusuo.job.config.ParameterConfig
 
 /**
-  * Created by NS on 2017/12/27.
+  * Created by Christopher Johnson on 2017/12/27.
   */
 class Teststuff extends AbstractJob{
   override def run(parameter: ParameterConfig): Unit = {

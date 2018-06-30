@@ -6,7 +6,7 @@ import com.xajiusuo.spark.SparkJobSubmits
 /**
   * Created by NS on 2017/12/26.
   */
-object Runsummorestuff {
+object RunClustering {
   def main(args: Array[String]): Unit ={
     val jobConfig = new JobConfig
     val runJobConfig = new RuntimeConfig
@@ -24,7 +24,7 @@ object Runsummorestuff {
     runJobConfig.setQueue("default")
     val jobParamConfig = new ParameterConfig
 
-    jobParamConfig.setParameter("impls", "xajiusuo.ilikebannanas.summorestuff")
+    jobParamConfig.setParameter("impls", "xajiusuo.ilikebannanas.Clustering")
 
     jobParamConfig.setParameter("input.path", "hdfs://masterAB/user/hadoop/datas/dc/*/2017-12-22/*/*")//
     jobParamConfig.setParameter("output.path", "hdfs://masterAB/tmp/yurboi-test/Test/a")
